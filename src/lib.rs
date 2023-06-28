@@ -31,21 +31,21 @@ impl GlobalMercator {
         }
     }
 
-    /// Converts given lat/lon in WGS84 Datum to XY in Spherical Mercator EPSG:900913
+    /// Converts given lat/lon in WGS84 Datum to XY in Spherical Mercator EPSG:3857
     pub fn lat_lon_to_meters(&self, lon: D, lat: D) -> (M, M) {
         let mx = self.a * lon.to_radians();
         let my = self.a * f64::ln(f64::tan(FRAC_PI_4 + lat.to_radians() / 2.0));
         (mx, my)
     }
 
-    /// Converts XY point from Spherical Mercator EPSG:900913 to lat/lon in WGS84 Datum
+    /// Converts XY point from Spherical Mercator EPSG:3857 to lat/lon in WGS84 Datum
     pub fn meters_2_lat_lon(&self, mx: M, my: M) -> (D, D) {
         let lon = (mx / self.a).to_degrees();
         let lat = (f64::atan(f64::sinh(my / self.a))).to_degrees();
         (lon, lat)
     }
 
-    /// Converts pixel coordinates in given Zoom level of pyramid to EPSG:900913
+    /// Converts pixel coordinates in given Zoom level of pyramid to EPSG:3857
     pub fn pixels_to_meters(&self, px: P, py: P, zoom: Z) -> (M, M) {
         let res = self.resolution(zoom);
         let mx = (px as f64) * res - PI * self.a;
@@ -53,7 +53,7 @@ impl GlobalMercator {
         (mx, my)
     }
 
-    /// Converts EPSG:900913 to pyramid pixel coordinates in given Zoom level
+    /// Converts EPSG:3857 to pyramid pixel coordinates in given Zoom level
     pub fn meters_to_pixels(&self, mx: M, my: M, zoom: Z) -> (P, P) {
         let res = self.resolution(zoom);
         let px = M::floor((mx + PI * self.a) / res) as P;
@@ -80,7 +80,7 @@ impl GlobalMercator {
         self.pixels_to_tile(px, py)
     }
 
-    /// Returns bounds of the given tile in EPSG:900913 coordinates
+    /// Returns bounds of the given tile in EPSG:3857 coordinates
     pub fn tile_bounds(&self, tx: T, ty: T, zoom: Z) -> (M, M, M, M) {
         let (minx, miny) = self.pixels_to_meters(tx * self.tile_size, ty * self.tile_size, zoom);
         let (maxx, maxy) = self.pixels_to_meters(
