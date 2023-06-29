@@ -1,5 +1,7 @@
 use std::f64::consts::{PI, TAU, FRAC_PI_4};
 
+
+#[cfg(test)]
 #[macro_use]
 extern crate approx;
 
@@ -20,6 +22,13 @@ pub struct GlobalMercator {
 }
 
 impl GlobalMercator {
+    /// Create a new instance of the coordinate transformer
+    ///
+    /// Example:
+    /// ```
+    ///  let transformer = webmerc::GlobalMercator::new(256);
+    ///  assert_eq!(transformer.tile_size(), 256);
+    /// ```
     pub fn new(tile_size: u64) -> Self {
         let a = 6378137.0;
         let initial_resolution = TAU * a / (tile_size as f64);
@@ -31,7 +40,27 @@ impl GlobalMercator {
         }
     }
 
+    /// Get the tile_size used to instantiate the transformer
+    ///
+    /// Example:
+    /// ```
+    /// let transformer = webmerc::GlobalMercator::new(256);
+    /// assert_eq!(transformer.tile_size(), 256);
+    /// ```
+    pub fn tile_size(&self) -> u64 {
+        self.tile_size
+    }
+
     /// Converts given lat/lon in WGS84 Datum to XY in Spherical Mercator EPSG:3857
+    ///
+    /// Example:
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// let transformer = webmerc::GlobalMercator::new(256);
+    /// let (x, y) = transformer.lat_lon_to_meters(10.0, 10.0);
+    /// assert_relative_eq!(x, 1113194.91, epsilon = 1e-2);
+    /// assert_relative_eq!(y, 1118889.97, epsilon = 1e-2);
+    /// ```
     pub fn lat_lon_to_meters(&self, lon: D, lat: D) -> (M, M) {
         let mx = self.a * lon.to_radians();
         let my = self.a * f64::ln(f64::tan(FRAC_PI_4 + lat.to_radians() / 2.0));
@@ -39,6 +68,14 @@ impl GlobalMercator {
     }
 
     /// Converts XY point from Spherical Mercator EPSG:3857 to lat/lon in WGS84 Datum
+    ///
+    /// ```
+    /// # #[macro_use] extern crate approx;
+    /// let transformer = webmerc::GlobalMercator::new(256);
+    /// let (lon, lat) = transformer.meters_2_lat_lon(-20037508.0, -20037508.0);
+    /// assert_relative_eq!(lon, -179.999997, epsilon = 1e-6);
+    /// assert_relative_eq!(lat, -85.051129, epsilon = 1e-6);
+    /// ```
     pub fn meters_2_lat_lon(&self, mx: M, my: M) -> (D, D) {
         let lon = (mx / self.a).to_degrees();
         let lat = (f64::atan(f64::sinh(my / self.a))).to_degrees();
@@ -212,6 +249,5 @@ mod tests {
             assert_relative_eq!(bounds.2, c, epsilon = 5e-3);
             assert_relative_eq!(bounds.3, m, epsilon = 5e-3);
         }
-
     }
 }
