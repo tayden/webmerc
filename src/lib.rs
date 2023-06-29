@@ -1,5 +1,4 @@
-use std::f64::consts::{PI, TAU, FRAC_PI_4};
-
+use std::f64::consts::{FRAC_PI_4, PI, TAU};
 
 #[cfg(test)]
 #[macro_use]
@@ -12,7 +11,6 @@ type M = f64;
 type P = u64;
 type Z = u64;
 type T = u64;
-
 
 #[derive(Debug, Copy, Clone)]
 pub struct GlobalMercator {
@@ -120,11 +118,8 @@ impl GlobalMercator {
     /// Returns bounds of the given tile in EPSG:3857 coordinates
     pub fn tile_bounds(&self, tx: T, ty: T, zoom: Z) -> (M, M, M, M) {
         let (minx, miny) = self.pixels_to_meters(tx * self.tile_size, ty * self.tile_size, zoom);
-        let (maxx, maxy) = self.pixels_to_meters(
-            (tx + 1) * self.tile_size,
-            (ty + 1) * self.tile_size,
-            zoom,
-        );
+        let (maxx, maxy) =
+            self.pixels_to_meters((tx + 1) * self.tile_size, (ty + 1) * self.tile_size, zoom);
         (minx, miny, maxx, maxy)
     }
 
