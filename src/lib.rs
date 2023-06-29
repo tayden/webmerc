@@ -14,7 +14,7 @@ type Z = u64;
 type T = u64;
 
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct GlobalMercator {
     tile_size: u64,
     a: f64,
